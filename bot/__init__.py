@@ -12,7 +12,7 @@ except ImportError:
 _loop = asyncio.new_event_loop()
 asyncio.set_event_loop(_loop)
 
-from subprocess import run as srun, SubprocessError
+from subprocess import run as srun
 from os import getcwd
 from asyncio import Lock
 from logging import (
@@ -59,7 +59,18 @@ LOGGER = getLogger(__name__)
 cpu_no = cpu_count()
 
 bot_cache = {}
-DOWNLOAD_DIR = "/mnt/d/Projects/WZML-X/downloads/"
+import os as _os
+_config_download_dir = None
+try:
+    import importlib as _il
+    _cfg = _il.import_module("config")
+    _config_download_dir = getattr(_cfg, "DOWNLOAD_DIR", None)
+except Exception:
+    pass
+DOWNLOAD_DIR = _config_download_dir or _os.environ.get("DOWNLOAD_DIR", "/usr/src/app/downloads/")
+if not DOWNLOAD_DIR.endswith("/"):
+    DOWNLOAD_DIR += "/"
+del _os, _config_download_dir
 intervals = {"status": {}, "qb": "", "jd": "", "nzb": "", "stopAll": False}
 qb_torrents = {}
 jd_downloads = {}
