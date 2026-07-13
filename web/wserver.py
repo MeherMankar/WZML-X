@@ -39,10 +39,14 @@ SERVICES = {
 async def lifespan(app: FastAPI):
     global aria2, qbittorrent
     aria2 = Aria2HttpClient("http://localhost:6800/jsonrpc")
-    qbittorrent = await create_client("http://localhost:8090/api/v2/")
+    try:
+        qbittorrent = await create_client("http://localhost:8090/api/v2/")
+    except Exception:
+        qbittorrent = None
     yield
     await aria2.close()
-    await qbittorrent.close()
+    if qbittorrent:
+        await qbittorrent.close()
 
 
 app = FastAPI(lifespan=lifespan)

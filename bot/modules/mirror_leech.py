@@ -15,7 +15,6 @@ from ..helper.ext_utils.exceptions import DirectDownloadLinkException
 from ..helper.ext_utils.links_utils import (
     is_mega_link,
     is_magnet,
-    is_rclone_path,
     is_telegram_link,
     is_url,
 )
@@ -34,9 +33,6 @@ from ..helper.mirror_leech_utils.download_utils.jd_download import add_jd_downlo
 from ..helper.mirror_leech_utils.download_utils.mega_download import add_mega_download
 from ..helper.mirror_leech_utils.download_utils.nzb_downloader import add_nzb
 from ..helper.mirror_leech_utils.download_utils.qbit_download import add_qb_torrent
-from ..helper.mirror_leech_utils.download_utils.rclone_download import (
-    add_rclone_download,
-)
 from ..helper.mirror_leech_utils.download_utils.telegram_download import (
     TelegramDownloadHelper,
 )
@@ -313,7 +309,6 @@ class Mirror(TaskListener):
             and not is_url(self.link)
             and not is_magnet(self.link)
             and not await aiopath.exists(self.link)
-            and not is_rclone_path(self.link)
             and not is_mega_link(self.link)
         ):
             await send_message(
@@ -341,7 +336,6 @@ class Mirror(TaskListener):
             and not self.is_nzb
             and not self.is_qbit
             and not is_magnet(self.link)
-            and not is_rclone_path(self.link)
             and not self.link.endswith(".torrent")
             and file_ is None
             and not is_mega_link(self.link)
@@ -383,8 +377,6 @@ class Mirror(TaskListener):
             await add_qb_torrent(self, path, ratio, seed_time)
         elif self.is_nzb:
             await add_nzb(self, path)
-        elif is_rclone_path(self.link):
-            await add_rclone_download(self, f"{path}/")
         elif is_mega_link(self.link):
             await add_mega_download(self, f"{path}/")
         else:

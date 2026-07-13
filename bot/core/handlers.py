@@ -317,16 +317,6 @@ def add_handlers():
     TgClient.bot.add_handler(CallbackQueryHandler(start_cb, filters=regex("^start")))
     TgClient.bot.add_handler(
         MessageHandler(
-            torrent_search,
-            filters=command(BotCommands.SearchCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        CallbackQueryHandler(torrent_search_update, filters=regex("^torser"))
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
             get_users_settings,
             filters=command(BotCommands.UsersCommand, case_sensitive=True)
             & CustomFilters.sudo,
@@ -352,9 +342,26 @@ def add_handlers():
     if Config.SET_COMMANDS:
         global BOT_COMMANDS
 
+        def insert_at(d, k, v, i):
+            return dict(list(d.items())[:i] + [(k, v)] + list(d.items())[i:])
+
+        if Config.JD_EMAIL and Config.JD_PASS:
+            BOT_COMMANDS = insert_at(
+                BOT_COMMANDS,
+                "JdLeech",
+                "[link/file] Leech files to Telegram using JDownloader",
+                3,
+            )
+
+        if len(Config.USENET_SERVERS) != 0:
+            BOT_COMMANDS = insert_at(
+                BOT_COMMANDS,
+                "NzbLeech",
+                "[nzb] Leech files to Telegram using Sabnzbd",
+                4,
+            )
+
         if Config.LOGIN_PASS:
-            def insert_at(d, k, v, i):
-                return dict(list(d.items())[:i] + [(k, v)] + list(d.items())[i:])
             BOT_COMMANDS = insert_at(
                 BOT_COMMANDS, "Login", "[password] Login to Bot", 14
             )

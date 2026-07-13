@@ -1,4 +1,9 @@
-from mega import MegaApi
+try:
+    from mega import MegaApi
+    MEGA_AVAILABLE = True
+except ImportError:
+    MegaApi = None
+    MEGA_AVAILABLE = False
 
 from ...ext_utils.status_utils import (
     MirrorStatus,
@@ -23,6 +28,8 @@ class MegaDownloadStatus:
         self.engine = f"Mega SDK v{self._eng_ver()}"
 
     def _eng_ver(self):
+        if MegaApi is None:
+            return "N/A"
         return MegaApi("zee").getVersion()
 
     def name(self):

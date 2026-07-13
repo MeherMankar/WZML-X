@@ -1,6 +1,15 @@
 from asyncio import Event
 
-from mega import MegaApi, MegaError, MegaListener, MegaRequest, MegaTransfer
+try:
+    from mega import MegaApi, MegaError, MegaListener, MegaRequest, MegaTransfer
+    MEGA_AVAILABLE = True
+except ImportError:
+    MegaApi = MegaError = MegaRequest = MegaTransfer = None
+    MEGA_AVAILABLE = False
+
+    class MegaListener:
+        """Stub class when mega SDK is not installed."""
+        pass
 
 from ... import LOGGER
 from ..ext_utils.bot_utils import async_to_sync, sync_to_async
@@ -34,7 +43,10 @@ class AsyncMega:
 
 
 class MegaAppListener(MegaListener):
-    _NO_EVENT_ON = (MegaRequest.TYPE_LOGIN, MegaRequest.TYPE_FETCH_NODES)
+    _NO_EVENT_ON = (
+        (MegaRequest.TYPE_LOGIN, MegaRequest.TYPE_FETCH_NODES)
+        if MEGA_AVAILABLE else ()
+    )
 
     def __init__(self, continue_event: Event, listener):
         self.continue_event = continue_event
@@ -46,7 +58,8 @@ class MegaAppListener(MegaListener):
         self._bytes_transferred = 0
         self._speed = 0
         self._name = ""
-        super().__init__()
+        if MEGA_AVAILABLE:
+            super().__init__()
 
     @property
     def speed(self):
@@ -57,6 +70,8 @@ class MegaAppListener(MegaListener):
         return self._bytes_transferred
 
     def onRequestFinish(self, api, request, error):
+        if not MEGA_AVAILABLE:
+            return
         if str(error).lower() != "no error":
             self.error = error.copy()
             if str(self.error).casefold() != "not found":
@@ -82,7 +97,9 @@ class MegaAppListener(MegaListener):
         ):
             self.continue_event.set()
 
-    def onRequestTemporaryError(self, api, request, error: MegaError):
+    def onRequestTemporaryError(self, api, request, error):
+        if not MEGA_AVAILABLE:
+            return
         LOGGER.error(f"Mega Request error in {error}")
         if not self.is_cancelled:
             self.is_cancelled = True
@@ -92,7 +109,9 @@ class MegaAppListener(MegaListener):
         self.error = error.toString()
         self.continue_event.set()
 
-    def onTransferUpdate(self, api: MegaApi, transfer: MegaTransfer):
+    def onTransferUpdate(self, api, transfer):
+        if not MEGA_AVAILABLE:
+            return
         if self.is_cancelled:
             api.cancelTransfer(transfer, None)
             self.continue_event.set()
@@ -100,7 +119,9 @@ class MegaAppListener(MegaListener):
         self._speed = transfer.getSpeed()
         self._bytes_transferred = transfer.getTransferredBytes()
 
-    def onTransferFinish(self, api: MegaApi, transfer: MegaTransfer, error):
+    def onTransferFinish(self, api, transfer, error):
+        if not MEGA_AVAILABLE:
+            return
         try:
             if self.is_cancelled:
                 self.continue_event.set()
@@ -113,6 +134,8 @@ class MegaAppListener(MegaListener):
             LOGGER.error(e)
 
     def onTransferTemporaryError(self, api, transfer, error):
+        if not MEGA_AVAILABLE:
+            return
         LOGGER.error(f"Mega download error in file {transfer.getFileName()}: {error}")
         if transfer.getState() in [1, 4]:
             return

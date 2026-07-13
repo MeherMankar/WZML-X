@@ -1,14 +1,20 @@
 # ruff: noqa: E402
 
+import asyncio
+
 try:
-    from uvloop import install
-    install()
+    import uvloop
+    uvloop.install()
 except ImportError:
     pass  # uvloop not available on Windows
 
+# Create event loop immediately before any third-party imports
+_loop = asyncio.new_event_loop()
+asyncio.set_event_loop(_loop)
+
 from subprocess import run as srun, SubprocessError
 from os import getcwd
-from asyncio import Lock, new_event_loop, set_event_loop
+from asyncio import Lock
 from logging import (
     ERROR,
     INFO,
@@ -40,8 +46,7 @@ pyroutils.MIN_CHAT_ID = -999999999999
 pyroutils.MIN_CHANNEL_ID = -100999999999999
 bot_start_time = time()
 
-bot_loop = new_event_loop()
-set_event_loop(bot_loop)
+bot_loop = _loop
 
 basicConfig(
     format="[%(asctime)s] [%(levelname)s] - %(message)s",  #  [%(filename)s:%(lineno)d]
@@ -54,7 +59,7 @@ LOGGER = getLogger(__name__)
 cpu_no = cpu_count()
 
 bot_cache = {}
-DOWNLOAD_DIR = "/usr/src/app/downloads/"
+DOWNLOAD_DIR = "/mnt/d/Projects/WZML-X/downloads/"
 intervals = {"status": {}, "qb": "", "jd": "", "nzb": "", "stopAll": False}
 qb_torrents = {}
 jd_downloads = {}

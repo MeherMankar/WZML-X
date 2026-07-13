@@ -1,7 +1,12 @@
 from secrets import token_hex
 from aiofiles.os import makedirs
 
-from mega import MegaApi
+try:
+    from mega import MegaApi
+    MEGA_AVAILABLE = True
+except ImportError:
+    MegaApi = None
+    MEGA_AVAILABLE = False
 
 from .... import LOGGER, task_dict, task_dict_lock
 from ....core.config_manager import Config
@@ -25,6 +30,9 @@ from ...listeners.mega_listener import (
 
 
 async def add_mega_download(listener, path):
+    if not MEGA_AVAILABLE:
+        await listener.on_download_error("Mega SDK not installed. Install megasdk to use Mega links.")
+        return
     async_api = AsyncMega()
     async_api.api = api = MegaApi(None, None, None, "WZML-X")
     folder_api = None
