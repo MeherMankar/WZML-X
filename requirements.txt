@@ -32,6 +32,6 @@ tenacity
 tgcrypto
 urllib3
 uvicorn
-uvloop
-xattr
+uvloop; sys_platform != "win32"
+xattr; sys_platform != "win32"
 yt-dlp[default,curl-cffi]

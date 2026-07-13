@@ -1,10 +1,12 @@
 # ruff: noqa: E402
 
-from uvloop import install
+try:
+    from uvloop import install
+    install()
+except ImportError:
+    pass  # uvloop not available on Windows
 
-install()
-
-from subprocess import run as srun
+from subprocess import run as srun, SubprocessError
 from os import getcwd
 from asyncio import Lock, new_event_loop, set_event_loop
 from logging import (
@@ -97,6 +99,9 @@ sabnzbd_client = SabnzbdClient(
     api_key="admin",
     port="8070",
 )
-srun([BinConfig.QBIT_NAME, "-d", f"--profile={getcwd()}"], check=False)
+try:
+    srun([BinConfig.QBIT_NAME, "-d", f"--profile={getcwd()}"], check=False)
+except (FileNotFoundError, OSError):
+    pass  # qBittorrent binary not available on this platform
 
 scheduler = AsyncIOScheduler(event_loop=bot_loop)
