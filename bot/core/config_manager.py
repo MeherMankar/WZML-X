@@ -16,13 +16,11 @@ class Config:
     CUSTOM_BOT_HEADER_LINK = "https://t.me/DownloaderZoneGateway"
     DEFAULT_LANG = "en"
     DATABASE_URL = ""
-    DEFAULT_UPLOAD = "rc"
     DELETE_LINKS = False
     DISABLE_TORRENTS = False
     DISABLE_LEECH = False
     DISABLE_BULK = False
     DISABLE_MULTI = False
-    DISABLE_SEED = False
     DISABLE_FF_MODE = False
     EQUAL_SPLITS = False
     EXCLUDED_EXTENSIONS = ""
@@ -30,16 +28,12 @@ class Config:
     FILELION_API = ""
     MEDIA_STORE = True
     FORCE_SUB_IDS = ""
-    GDRIVE_ID = ""
-    GD_DESP = "Uploaded by Dzone"
     AUTHOR_NAME = "Dzone"
     AUTHOR_URL = "https://t.me/DownloaderZoneGateway"
     DEBRID_LINK_API = ""
     INSTADL_API = ""
     IMDB_TEMPLATE = ""
     INCOMPLETE_TASK_NOTIFIER = False
-    INDEX_URL = ""
-    IS_TEAM_DRIVE = False
     JD_EMAIL = ""
     JD_PASS = ""
     MEGA_EMAIL = ""
@@ -47,9 +41,6 @@ class Config:
     DIRECT_LIMIT = 0
     MEGA_LIMIT = 0
     TORRENT_LIMIT = 0
-    GD_DL_LIMIT = 0
-    RC_DL_LIMIT = 0
-    CLONE_LIMIT = 0
     JD_LIMIT = 0
     NZB_LIMIT = 0
     YTDLP_LIMIT = 0
@@ -60,7 +51,6 @@ class Config:
     STORAGE_LIMIT = 0
     LEECH_DUMP_CHAT = ""
     LINKS_LOG_ID = ""
-    MIRROR_LOG_ID = ""
     CLEAN_LOG_MSG = False
     LEECH_PREFIX = ""
     LEECH_CAPTION = ""
@@ -70,19 +60,12 @@ class Config:
     MEDIA_GROUP = False
     HYBRID_LEECH = True
     HYPER_THREADS = 0
-    HYDRA_IP = ""
-    HYDRA_API_KEY = ""
     NAME_SWAP = ""
     OWNER_ID = 0
     QUEUE_ALL = 0
     QUEUE_DOWNLOAD = 0
     QUEUE_UPLOAD = 0
     RCLONE_FLAGS = ""
-    RCLONE_PATH = ""
-    RCLONE_SERVE_URL = ""
-    RCLONE_SERVE_USER = ""
-    RCLONE_SERVE_PASS = ""
-    RCLONE_SERVE_PORT = 8080
     RSS_CHAT = ""
     RSS_DELAY = 600
     RSS_SIZE_LIMIT = 0
@@ -90,10 +73,8 @@ class Config:
     SEARCH_LIMIT = 0
     SEARCH_PLUGINS = []
     SET_COMMANDS = True
-    SHOW_CLOUD_LINK = False
     STATUS_LIMIT = 10
     STATUS_UPDATE_INTERVAL = 15
-    STOP_DUPLICATE = False
     STREAMWISH_API = ""
     SUDO_USERS = ""
     TELEGRAM_API = 0
@@ -113,7 +94,6 @@ class Config:
     USENET_SERVERS = []
     USER_SESSION_STRING = ""
     USER_TRANSMISSION = True
-    USE_SERVICE_ACCOUNTS = False
     WEB_PINCODE = True
     YT_DLP_OPTIONS = {}
 
@@ -154,12 +134,8 @@ class Config:
                     continue
                 if isinstance(value, str):
                     value = value.strip()
-                if attr == "DEFAULT_UPLOAD" and value != "gd":
-                    value = "rc"
-                elif attr in [
+                if attr in [
                     "BASE_URL",
-                    "RCLONE_SERVE_URL",
-                    "INDEX_URL",
                     "SEARCH_API_LINK",
                 ]:
                     if value:
@@ -210,12 +186,8 @@ class Config:
     def load_dict(cls, config_dict):
         for key, value in config_dict.items():
             if hasattr(cls, key):
-                if key == "DEFAULT_UPLOAD" and value != "gd":
-                    value = "rc"
-                elif key in [
+                if key in [
                     "BASE_URL",
-                    "RCLONE_SERVE_URL",
-                    "INDEX_URL",
                     "SEARCH_API_LINK",
                 ]:
                     if value:

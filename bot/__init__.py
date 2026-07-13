@@ -80,9 +80,6 @@ var_list = [
 ]
 auth_chats = {}
 excluded_extensions = ["aria2", "!qB"]
-drives_names = []
-drives_ids = []
-index_urls = []
 sudo_users = []
 non_queued_dl = set()
 non_queued_up = set()

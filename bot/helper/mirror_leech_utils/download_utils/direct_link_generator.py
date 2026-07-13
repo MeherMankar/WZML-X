@@ -5,7 +5,7 @@ from json import loads
 from lxml.etree import HTML
 from os import path as ospath
 from re import findall, match, search
-from requests import Session, post, get, RequestException
+from requests import Session, post, get
 from requests.adapters import HTTPAdapter
 from time import sleep
 from urllib.parse import parse_qs, urlparse, quote
@@ -712,7 +712,7 @@ def pixeldrain(url):
         code = url.split("/")[-1].split("?", 1)[0]
         response = get("https://pd.cybar.xyz/", allow_redirects=True)
         return response.url + code
-    except Exception as e:
+    except Exception:
         raise DirectDownloadLinkException("ERROR: Direct link not found")
 
 
@@ -935,7 +935,7 @@ def terabox(url):
             if download_link and download_link.startswith("http"):
                 return download_link
 
-        raise DirectDownloadLinkException(f"No usable download link found.")
+        raise DirectDownloadLinkException("No usable download link found.")
 
     except Exception as e:
         raise DirectDownloadLinkException(f"Failed to get direct link: {e}")

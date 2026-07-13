@@ -12,16 +12,12 @@ from time import time
 from aiofiles import open as aiopen
 from aiofiles.os import path as aiopath
 from aiofiles.os import remove, rename
-from aioshutil import rmtree
 from pyrogram.filters import create
 from pyrogram.handlers import MessageHandler
 
 from .. import (
     LOGGER,
     aria2_options,
-    drives_ids,
-    drives_names,
-    index_urls,
     intervals,
     jd_listener_lock,
     nzb_options,
@@ -44,7 +40,6 @@ from ..core.startup import update_qb_options, update_nzb_options, update_variabl
 from ..helper.ext_utils.db_handler import database
 from ..core.jdownloader_booter import jdownloader
 from ..helper.ext_utils.task_manager import start_from_queued
-from ..helper.mirror_leech_utils.rclone_utils.serve import rclone_serve_booter
 from ..helper.telegram_helper.button_build import ButtonMaker
 from ..helper.telegram_helper.message_utils import (
     delete_message,
@@ -65,7 +60,6 @@ DEFAULT_VALUES = {
     "STATUS_UPDATE_INTERVAL": 15,
     "SEARCH_LIMIT": 0,
     "UPSTREAM_BRANCH": "master",
-    "DEFAULT_UPLOAD": "rc",
 }
 
 
@@ -160,9 +154,6 @@ async def get_buttons(key=None, edit_type=None, edit_mode=False):
                 for fn in [
                     "config.py",
                     "token.pickle",
-                    "rclone.conf",
-                    "accounts.zip",
-                    "list_drives.txt",
                     "shortener.txt",
                     "cookies.txt",
                     ".netrc",
@@ -303,16 +294,6 @@ async def edit_variable(_, message, pre_message, key):
         for x in fx:
             x = x.lstrip(".")
             excluded_extensions.append(x.strip().lower())
-    elif key == "GDRIVE_ID":
-        if drives_names and drives_names[0] == "Main":
-            drives_ids[0] = value
-        else:
-            drives_ids.insert(0, value)
-    elif key == "INDEX_URL":
-        if drives_names and drives_names[0] == "Main":
-            index_urls[0] = value
-        else:
-            index_urls.insert(0, value)
     elif key == "LINKS_LOG_ID":
         if value.strip():
             try:
@@ -321,16 +302,6 @@ async def edit_variable(_, message, pre_message, key):
                 await send_message(
                     message,
                     "Invalid value! LINKS_LOG_ID must be a valid integer chat ID.",
-                )
-                return await update_buttons(pre_message, "var")
-    elif key == "MIRROR_LOG_ID":
-        if value.strip():
-            try:
-                value = int(value.strip())
-            except ValueError:
-                await send_message(
-                    message,
-                    "Invalid value! MIRROR_LOG_ID must be a valid integer chat ID.",
                 )
                 return await update_buttons(pre_message, "var")
     elif key == "AUTHORIZED_CHATS":
@@ -367,13 +338,6 @@ async def edit_variable(_, message, pre_message, key):
         await initiate_search_tools()
     elif key in ["QUEUE_ALL", "QUEUE_DOWNLOAD", "QUEUE_UPLOAD"]:
         await start_from_queued()
-    elif key in [
-        "RCLONE_SERVE_URL",
-        "RCLONE_SERVE_PORT",
-        "RCLONE_SERVE_USER",
-        "RCLONE_SERVE_PASS",
-    ]:
-        await rclone_serve_booter()
     elif key in ["JD_EMAIL", "JD_PASS"]:
         await jdownloader.boot()
     elif key == "RSS_DELAY":
@@ -501,14 +465,7 @@ async def update_private_file(_, message, pre_message, key, new_file=False):
         else:
             if await aiopath.isfile(file_name) and file_name != "config.py":
                 await remove(file_name)
-            if file_name == "accounts.zip":
-                if await aiopath.exists("accounts"):
-                    await rmtree("accounts", ignore_errors=True)
-                if await aiopath.exists("rclone_sa"):
-                    await rmtree("rclone_sa", ignore_errors=True)
-                Config.USE_SERVICE_ACCOUNTS = False
-                await database.update_config({"USE_SERVICE_ACCOUNTS": False})
-            elif file_name in [".netrc", "netrc"]:
+            if file_name in [".netrc", "netrc"]:
                 await (await create_subprocess_exec("touch", ".netrc")).wait()
                 await (await create_subprocess_exec("chmod", "600", ".netrc")).wait()
                 await (
@@ -521,20 +478,7 @@ async def update_private_file(_, message, pre_message, key, new_file=False):
         if await aiopath.exists(fpath):
             await remove(fpath)
         await message.download(file_name=fpath)
-        if file_name == "accounts.zip":
-            if await aiopath.exists("accounts"):
-                await rmtree("accounts", ignore_errors=True)
-            if await aiopath.exists("rclone_sa"):
-                await rmtree("rclone_sa", ignore_errors=True)
-            await (
-                await create_subprocess_exec(
-                    "7z", "x", "-o.", "-aoa", "accounts.zip", "accounts/*.json"
-                )
-            ).wait()
-            await (
-                await create_subprocess_exec("chmod", "-R", "777", "accounts")
-            ).wait()
-        elif file_name in [".netrc", "netrc"]:
+        if file_name in [".netrc", "netrc"]:
             if file_name == "netrc":
                 await rename("netrc", ".netrc")
                 file_name = ".netrc"
@@ -550,27 +494,7 @@ async def update_private_file(_, message, pre_message, key, new_file=False):
             await send_message(message, msg, buttons.build_menu(2))
         else:
             await delete_message(message)
-    if file_name == "rclone.conf":
-        await rclone_serve_booter()
-    elif file_name == "list_drives.txt" and await aiopath.exists("list_drives.txt"):
-        drives_ids.clear()
-        drives_names.clear()
-        index_urls.clear()
-        if Config.GDRIVE_ID:
-            drives_names.append("Main")
-            drives_ids.append(Config.GDRIVE_ID)
-            index_urls.append(Config.INDEX_URL)
-        async with aiopen("list_drives.txt", "r+") as f:
-            lines = await f.readlines()
-            for line in lines:
-                temp = line.strip().split()
-                drives_ids.append(temp[1])
-                drives_names.append(temp[0].replace("_", " "))
-                if len(temp) > 2:
-                    index_urls.append(temp[2])
-                else:
-                    index_urls.append("")
-    elif file_name == "shortener.txt" and await aiopath.exists("shortener.txt"):
+    if await aiopath.exists("shortener.txt"):
         async with aiopen("shortener.txt", "r+") as f:
             lines = await f.readlines()
             for line in lines:
@@ -679,14 +603,6 @@ async def edit_bot_settings(client, query):
                 await create_subprocess_shell(
                     f"gunicorn -k uvicorn.workers.UvicornWorker -w 1 web.wserver:app --bind 0.0.0.0:{value}"
                 )
-        elif data[2] == "GDRIVE_ID":
-            if drives_names and drives_names[0] == "Main":
-                drives_names.pop(0)
-                drives_ids.pop(0)
-                index_urls.pop(0)
-        elif data[2] == "INDEX_URL":
-            if drives_names and drives_names[0] == "Main":
-                index_urls[0] = ""
         elif data[2] == "INCOMPLETE_TASK_NOTIFIER":
             await database.trunc_table("tasks")
         elif data[2] in ["JD_EMAIL", "JD_PASS"]:
@@ -707,13 +623,6 @@ async def edit_bot_settings(client, query):
             await initiate_search_tools()
         elif data[2] in ["QUEUE_ALL", "QUEUE_DOWNLOAD", "QUEUE_UPLOAD"]:
             await start_from_queued()
-        elif data[2] in [
-            "RCLONE_SERVE_URL",
-            "RCLONE_SERVE_PORT",
-            "RCLONE_SERVE_USER",
-            "RCLONE_SERVE_PASS",
-        ]:
-            await rclone_serve_booter()
     elif data[1] == "resetnzb":
         await query.answer()
         res = await sabnzbd_client.set_config_default(data[2])
@@ -925,13 +834,7 @@ async def send_bot_settings(_, message):
 
 async def load_config():
     Config.load()
-    drives_ids.clear()
-    drives_names.clear()
-    index_urls.clear()
     await update_variables()
-
-    if not await aiopath.exists("accounts"):
-        Config.USE_SERVICE_ACCOUNTS = False
 
     if len(task_dict) != 0 and (st := intervals["status"]):
         for key, intvl in list(st.items()):
@@ -961,5 +864,5 @@ async def load_config():
         await database.update_config(config_dict)
     else:
         await database.disconnect()
-    await gather(initiate_search_tools(), start_from_queued(), rclone_serve_booter())
+    await gather(initiate_search_tools(), start_from_queued())
     add_job()

@@ -13,8 +13,6 @@ from ..helper.ext_utils.bot_utils import (
 )
 from ..helper.ext_utils.exceptions import DirectDownloadLinkException
 from ..helper.ext_utils.links_utils import (
-    is_gdrive_id,
-    is_gdrive_link,
     is_mega_link,
     is_magnet,
     is_rclone_path,
@@ -32,7 +30,6 @@ from ..helper.mirror_leech_utils.download_utils.direct_downloader import (
 from ..helper.mirror_leech_utils.download_utils.direct_link_generator import (
     direct_link_generator,
 )
-from ..helper.mirror_leech_utils.download_utils.gd_download import add_gd_download
 from ..helper.mirror_leech_utils.download_utils.jd_download import add_jd_download
 from ..helper.mirror_leech_utils.download_utils.mega_download import add_mega_download
 from ..helper.mirror_leech_utils.download_utils.nzb_downloader import add_nzb
@@ -57,7 +54,7 @@ class Mirror(TaskListener):
         client,
         message,
         is_qbit=False,
-        is_leech=False,
+        is_leech=True,
         is_jd=False,
         is_nzb=False,
         same_dir=None,
@@ -77,7 +74,7 @@ class Mirror(TaskListener):
         self.bulk = bulk
         super().__init__()
         self.is_qbit = is_qbit
-        self.is_leech = is_leech
+        self.is_leech = True  # always leech
         self.is_jd = is_jd
         self.is_nzb = is_nzb
 
@@ -96,8 +93,6 @@ class Mirror(TaskListener):
         args = {
             "-doc": False,
             "-med": False,
-            "-d": False,
-            "-j": False,
             "-s": False,
             "-b": False,
             "-e": False,
@@ -116,7 +111,6 @@ class Mirror(TaskListener):
             "-n": "",
             "-m": "",
             "-up": "",
-            "-rcf": "",
             "-au": "",
             "-ap": "",
             "-h": "",
@@ -141,26 +135,16 @@ class Mirror(TaskListener):
             )
             return
 
-        if Config.DISABLE_SEED and args.get("-d", False):
-            await send_message(
-                self.message,
-                "Seeding is currently disabled. Please try without the -d flag.",
-            )
-            return
-
         if Config.DISABLE_FF_MODE and args.get("-ff"):
             await send_message(self.message, "FFmpeg commands are currently disabled.")
             return
 
         self.select = args["-s"]
-        self.seed = args["-d"]
         self.name = args["-n"]
         self.up_dest = args["-up"]
-        self.rc_flags = args["-rcf"]
         self.link = args["link"]
         self.compress = args["-z"]
         self.extract = args["-e"]
-        self.join = args["-j"]
         self.thumb = args["-t"]
         self.split_size = args["-sp"]
         self.sample_video = args["-sv"]
@@ -204,13 +188,6 @@ class Mirror(TaskListener):
         except Exception as e:
             self.ffmpeg_cmds = None
             LOGGER.error(e)
-
-        if not isinstance(self.seed, bool):
-            dargs = self.seed.split(":")
-            ratio = dargs[0] or None
-            if len(dargs) == 2:
-                seed_time = dargs[1] or None
-            self.seed = True
 
         if not isinstance(is_bulk, bool):
             dargs = is_bulk.split(":")
@@ -289,7 +266,7 @@ class Mirror(TaskListener):
                 self.client,
                 nextmsg,
                 self.is_qbit,
-                self.is_leech,
+                True,
                 self.is_jd,
                 self.is_nzb,
                 self.same_dir,
@@ -331,16 +308,16 @@ class Mirror(TaskListener):
             or is_telegram_link(self.link)
             and reply_to is None
             or file_ is None
+            and not self.is_jd
+            and not self.is_nzb
             and not is_url(self.link)
             and not is_magnet(self.link)
             and not await aiopath.exists(self.link)
             and not is_rclone_path(self.link)
-            and not is_gdrive_id(self.link)
-            and not is_gdrive_link(self.link)
             and not is_mega_link(self.link)
         ):
             await send_message(
-                self.message, COMMAND_USAGE["mirror"][0], COMMAND_USAGE["mirror"][1]
+                self.message, COMMAND_USAGE["leech"][0], COMMAND_USAGE["leech"][1]
             )
             await self.remove_from_same_dir()
             await delete_links(self.message)
@@ -365,10 +342,8 @@ class Mirror(TaskListener):
             and not self.is_qbit
             and not is_magnet(self.link)
             and not is_rclone_path(self.link)
-            and not is_gdrive_link(self.link)
             and not self.link.endswith(".torrent")
             and file_ is None
-            and not is_gdrive_id(self.link)
             and not is_mega_link(self.link)
         ):
             content_type = await get_content_type(self.link)
@@ -410,8 +385,6 @@ class Mirror(TaskListener):
             await add_nzb(self, path)
         elif is_rclone_path(self.link):
             await add_rclone_download(self, f"{path}/")
-        elif is_gdrive_link(self.link) or is_gdrive_id(self.link):
-            await add_gd_download(self, path)
         elif is_mega_link(self.link):
             await add_mega_download(self, f"{path}/")
         else:
@@ -425,40 +398,20 @@ class Mirror(TaskListener):
             await add_aria2_download(self, path, headers, ratio, seed_time)
 
 
-async def mirror(client, message):
-    bot_loop.create_task(Mirror(client, message).new_event())
-
-
-async def qb_mirror(client, message):
-    bot_loop.create_task(Mirror(client, message, is_qbit=True).new_event())
-
-
-async def jd_mirror(client, message):
-    bot_loop.create_task(Mirror(client, message, is_jd=True).new_event())
-
-
-async def nzb_mirror(client, message):
-    bot_loop.create_task(Mirror(client, message, is_nzb=True).new_event())
-
-
 async def leech(client, message):
     if Config.DISABLE_LEECH:
         await message.reply("The Leech command is currently disabled.")
         return
-    bot_loop.create_task(Mirror(client, message, is_leech=True).new_event())
+    bot_loop.create_task(Mirror(client, message).new_event())
 
 
 async def qb_leech(client, message):
-    bot_loop.create_task(
-        Mirror(client, message, is_qbit=True, is_leech=True).new_event()
-    )
+    bot_loop.create_task(Mirror(client, message, is_qbit=True).new_event())
 
 
 async def jd_leech(client, message):
-    bot_loop.create_task(Mirror(client, message, is_leech=True, is_jd=True).new_event())
+    bot_loop.create_task(Mirror(client, message, is_jd=True).new_event())
 
 
 async def nzb_leech(client, message):
-    bot_loop.create_task(
-        Mirror(client, message, is_leech=True, is_nzb=True).new_event()
-    )
+    bot_loop.create_task(Mirror(client, message, is_nzb=True).new_event())

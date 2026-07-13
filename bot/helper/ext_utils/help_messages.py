@@ -1,15 +1,17 @@
 from ..telegram_helper.bot_commands import BotCommands
 
-mirror = """<b>Send link along with command line or </b>
+leech_main = """<b>Send link along with command line or </b>
 
 /cmd link
 
 <b>By replying to link/file</b>:
 
-/cmd -n new name -e -up upload destination
+/cmd -n new name -e -up chat_id
 
 <b>NOTE:</b>
-1. Commands that start with <b>qb</b> are ONLY for torrents."""
+1. Commands that start with <b>qb</b> are ONLY for torrents.
+2. Commands that start with <b>jd</b> use JDownloader.
+3. Commands that start with <b>nzb</b> use SABnzbd."""
 
 yt = """<b>Send link along with command line</b>:
 
@@ -19,9 +21,6 @@ yt = """<b>Send link along with command line</b>:
 
 Check here all supported <a href='https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md'>SITES</a>
 Check all yt-dlp api options from this <a href='https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/YoutubeDL.py#L212'>FILE</a> or use this <a href='https://t.me/mltb_official_channel/177'>script</a> to convert cli arguments to api options."""
-
-clone = """Send Gdrive|Gdot|Filepress|Filebee|Appdrive|Gdflix link or rclone path along with command or by replying to the link/rc_path by command.
-Use -sync to use sync method in rclone. Example: /cmd rcl/rclone_path -up rcl/rclone_path/rc -sync"""
 
 new_name = """<b>New Name</b>: -n
 
@@ -276,42 +275,30 @@ YT_HELP_DICT = {
     "FFmpeg-Cmds": ffmpeg_cmds,
 }
 
-MIRROR_HELP_DICT = {
-    "main": mirror,
+LEECH_HELP_DICT = {
+    "main": leech_main,
     "New-Name": new_name,
     "DL-Auth": "<b>Direct link authorization</b>: -au -ap\n\n/cmd link -au username -ap password",
     "Headers": "<b>Direct link custom headers</b>: -h\n\n/cmd link -h key: value key1: value1",
     "Extract/Zip": extract_zip,
     "Select-Files": "<b>Bittorrent/JDownloader/Sabnzbd File Selection</b>: -s\n\n/cmd link -s or by replying to file/link",
-    "Torrent-Seed": seed,
     "Multi-Link": multi_link,
     "Same-Directory": same_dir,
     "Thumb": thumb,
     "Split-Size": split_size,
     "Upload-Destination": upload,
-    "Rclone-Flags": rcf,
     "Bulk": bulk,
     "Join": join,
-    "Rclone-DL": rlone_dl,
     "Tg-Links": tg_links,
     "Sample-Video": sample_video,
     "Screenshot": screenshot,
     "Convert-Media": convert_media,
     "Force-Start": force_start,
-    "User-Download": user_download,
     "Name-Swap": name_swap,
     "TG-Transmission": transmission,
     "Thumb-Layout": thumbnail_layout,
     "Leech-Type": leech_as,
     "FFmpeg-Cmds": ffmpeg_cmds,
-}
-
-CLONE_HELP_DICT = {
-    "main": clone,
-    "Multi-Link": multi_link,
-    "Bulk": bulk,
-    "Gdrive": gdrive,
-    "Rclone": rclone_cl,
 }
 
 RSS_HELP_MESSAGE = """
@@ -347,28 +334,18 @@ PASSWORD_ERROR_MESSAGE = """
 
 
 help_string = f"""
-NOTE: Try each command without any argument to see more detalis.
-/{BotCommands.MirrorCommand[0]} or /{BotCommands.MirrorCommand[1]}: Start mirroring to cloud.
-/{BotCommands.QbMirrorCommand[0]} or /{BotCommands.QbMirrorCommand[1]}: Start Mirroring to cloud using qBittorrent.
-/{BotCommands.JdMirrorCommand[0]} or /{BotCommands.JdMirrorCommand[1]}: Start Mirroring to cloud using JDownloader.
-/{BotCommands.NzbMirrorCommand[0]} or /{BotCommands.NzbMirrorCommand[1]}: Start Mirroring to cloud using Sabnzbd.
-/{BotCommands.YtdlCommand[0]} or /{BotCommands.YtdlCommand[1]}: Mirror yt-dlp supported link.
+NOTE: Try each command without any argument to see more details.
 /{BotCommands.LeechCommand[0]} or /{BotCommands.LeechCommand[1]}: Start leeching to Telegram.
 /{BotCommands.QbLeechCommand[0]} or /{BotCommands.QbLeechCommand[1]}: Start leeching using qBittorrent.
 /{BotCommands.JdLeechCommand[0]} or /{BotCommands.JdLeechCommand[1]}: Start leeching using JDownloader.
 /{BotCommands.NzbLeechCommand[0]} or /{BotCommands.NzbLeechCommand[1]}: Start leeching using Sabnzbd.
 /{BotCommands.YtdlLeechCommand[0]} or /{BotCommands.YtdlLeechCommand[1]}: Leech yt-dlp supported link.
-/{BotCommands.CloneCommand} [drive_url]: Copy file/folder to Google Drive.
-/{BotCommands.CountCommand} [drive_url]: Count file/folder of Google Drive.
-/{BotCommands.DeleteCommand} [drive_url]: Delete file/folder from Google Drive (Only Owner & Sudo).
 /{BotCommands.UserSetCommand[0]} or /{BotCommands.UserSetCommand[1]} [query]: Users settings.
 /{BotCommands.BotSetCommand[0]} or /{BotCommands.BotSetCommand[1]} [query]: Bot settings.
 /{BotCommands.SelectCommand}: Select files from torrents or nzb by gid or reply.
 /{BotCommands.CancelTaskCommand[0]} or /{BotCommands.CancelTaskCommand[1]} [gid]: Cancel task by gid or reply.
 /{BotCommands.ForceStartCommand[0]} or /{BotCommands.ForceStartCommand[1]} [gid]: Force start task by gid or reply.
 /{BotCommands.CancelAllCommand} [query]: Cancel all [status] tasks.
-/{BotCommands.ListCommand} [query]: Search in Google Drive(s).
-/{BotCommands.SearchCommand} [query]: Search for torrents with API.
 /{BotCommands.MediaInfoCommand[0]} or /{BotCommands.MediaInfoCommand[1]} [query]: Get media info.
 /{BotCommands.StatusCommand}: Shows a status of all the downloads.
 /{BotCommands.StatsCommand}: Show stats of the machine where the bot is hosted in.
@@ -388,17 +365,11 @@ NOTE: Try each command without any argument to see more detalis.
 """
 
 BOT_COMMANDS = {
-    "Mirror": "[link/file] Mirror to Upload Destination",
-    "QbMirror": "[magnet/torrent] Mirror to Upload Destination using qbit",
-    "Ytdl": "[link] Mirror YouTube, m3u8, Social Media and yt-dlp supported urls",
     "Leech": "[link/file] Leech files to Upload to Telegram",
     "QbLeech": "[magnet/torrent] Leech files to Upload to Telegram using qbit",
     "YtdlLeech": "[link] Leech YouTube, m3u8, Social Media and yt-dlp supported urls",
-    "Clone": "[link] Clone files/folders to GDrive",
     "UserSet": "User personal settings",
     "ForceStart": "[gid/reply] Force start from queued task",
-    "Count": "[link] Count no. of files/folders in GDrive",
-    "List": "[query] Search any Text which is available in GDrive",
     "Search": "[query] Search torrents via Qbit Plugins",
     "MediaInfo": "[reply/link] Get MediaInfo of the Target Media",
     "SpeedTest": "Check Bot Speed using Speedtest.com",

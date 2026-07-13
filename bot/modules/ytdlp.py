@@ -262,7 +262,6 @@ class YtDlp(TaskListener):
         client,
         message,
         _=None,
-        is_leech=False,
         __=None,
         ___=None,
         same_dir=None,
@@ -282,7 +281,7 @@ class YtDlp(TaskListener):
         self.bulk = bulk
         super().__init__()
         self.is_ytdlp = True
-        self.is_leech = is_leech
+        self.is_leech = True  # always leech
 
     async def new_event(self):
         text = self.message.text.split("\n")
@@ -493,10 +492,5 @@ class YtDlp(TaskListener):
         await delete_links(self.message)
         await ydl.add_download(path, qual, playlist, opt)
 
-
-async def ytdl(client, message):
-    bot_loop.create_task(YtDlp(client, message).new_event())
-
-
 async def ytdl_leech(client, message):
-    bot_loop.create_task(YtDlp(client, message, is_leech=True).new_event())
+    bot_loop.create_task(YtDlp(client, message).new_event())

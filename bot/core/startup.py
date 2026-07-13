@@ -12,9 +12,6 @@ from .. import (
     LOGGER,
     aria2_options,
     auth_chats,
-    drives_ids,
-    drives_names,
-    index_urls,
     shortener_dict,
     var_list,
     user_data,
@@ -72,7 +69,7 @@ async def update_nzb_options():
 async def load_settings():
     if not Config.DATABASE_URL:
         return
-    for p in ["thumbnails", "tokens", "rclone"]:
+    for p in ["thumbnails", "tokens"]:
         if await aiopath.exists(p):
             await rmtree(p, ignore_errors=True)
     await database.connect()
@@ -160,7 +157,6 @@ async def load_settings():
                 del row["_id"]
                 paths = {
                     "THUMBNAIL": f"thumbnails/{uid}.jpg",
-                    "RCLONE_CONFIG": f"rclone/{uid}.conf",
                     "TOKEN_PICKLE": f"tokens/{uid}.pickle",
                     "USER_COOKIE_FILE": f"cookies/{uid}/cookies.txt",
                 }
@@ -252,11 +248,6 @@ async def update_variables():
             x = x.lstrip(".")
             excluded_extensions.append(x.strip().lower())
 
-    if Config.GDRIVE_ID:
-        drives_names.append("Main")
-        drives_ids.append(Config.GDRIVE_ID)
-        index_urls.append(Config.INDEX_URL)
-
     if not Config.IMDB_TEMPLATE:
         Config.IMDB_TEMPLATE = """
 <b>Title: </b> {title} [{year}]
@@ -271,18 +262,6 @@ async def update_variables():
 <b>Story Line: </b><code>{plot}</code>
 
 <a href="{url_cast}">Read More ...</a>"""
-
-    if await aiopath.exists("list_drives.txt"):
-        async with aiopen("list_drives.txt", "r+") as f:
-            lines = await f.readlines()
-            for line in lines:
-                temp = line.split()
-                drives_ids.append(temp[1])
-                drives_names.append(temp[0].replace("_", " "))
-                if len(temp) > 2:
-                    index_urls.append(temp[2])
-                else:
-                    index_urls.append("")
 
     if await aiopath.exists("shortener.txt"):
         async with aiopen("shortener.txt", "r+") as f:
@@ -317,20 +296,6 @@ async def load_configurations():
         await (
             await create_subprocess_exec("7z", "x", "cfg.zip", "-o/JDownloader")
         ).wait()
-
-    if await aiopath.exists("accounts.zip"):
-        if await aiopath.exists("accounts"):
-            await rmtree("accounts")
-        await (
-            await create_subprocess_exec(
-                "7z", "x", "-o.", "-aoa", "accounts.zip", "accounts/*.json"
-            )
-        ).wait()
-        await (await create_subprocess_exec("chmod", "-R", "777", "accounts")).wait()
-        await remove("accounts.zip")
-
-    if not await aiopath.exists("accounts"):
-        Config.USE_SERVICE_ACCOUNTS = False
 
     await TorrentManager.initiate()
 

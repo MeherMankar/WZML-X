@@ -43,8 +43,6 @@ leech_options = [
     "LEECH_CAPTION",
     "THUMBNAIL_LAYOUT",
 ]
-rclone_options = ["RCLONE_CONFIG", "RCLONE_PATH", "RCLONE_FLAGS"]
-gdrive_options = ["TOKEN_PICKLE", "GDRIVE_ID", "INDEX_URL"]
 ffset_options = ["FFMPEG_CMDS"]
 advanced_options = [
     "EXCLUDED_EXTENSIONS",
@@ -59,16 +57,6 @@ user_settings_text = {
         "Photo or Doc",
         "Custom Thumbnail is used as the thumbnail for the files you upload to telegram in media or document mode.",
         "<i>Send a photo to save it as custom thumbnail.</i> \n╰ <b>Time Left :</b> <code>60 sec</code>",
-    ),
-    "RCLONE_CONFIG": (
-        "",
-        "",
-        "<i>Send your <code>rclone.conf</code> file to use as your Upload Dest to RClone.</i> \n╰ <b>Time Left :</b> <code>60 sec</code>",
-    ),
-    "TOKEN_PICKLE": (
-        "",
-        "",
-        "<i>Send your <code>token.pickle</code> to use as your Upload Dest to GDrive</i> \n╰ <b>Time Left :</b> <code>60 sec</code>",
     ),
     "LEECH_SPLIT_SIZE": (
         "",
@@ -104,26 +92,6 @@ user_settings_text = {
         "",
         "",
         "Send thumbnail layout (widthxheight, 2x2, 3x3, 2x4, 4x4, ...). Example: 3x3.</i> \n╰ <b>Time Left :</b> <code>60 sec</code>",
-    ),
-    "RCLONE_PATH": (
-        "",
-        "",
-        "Send Rclone Path. If you want to use your rclone config edit using owner/user config from usetting or add mrcc: before rclone path. Example mrcc:remote:folder. </i> \n╰ <b>Time Left :</b> <code>60 sec</code>",
-    ),
-    "RCLONE_FLAGS": (
-        "",
-        "",
-        "key:value|key|key|key:value . Check here all <a href='https://rclone.org/flags/'>RcloneFlags</a>\nEx: --buffer-size:8M|--drive-starred-only",
-    ),
-    "GDRIVE_ID": (
-        "",
-        "",
-        "Send Gdrive ID. If you want to use your token.pickle edit using owner/user token from usetting or add mtp: before the id. Example: mtp:F435RGGRDXXXXXX . </i> \n╰ <b>Time Left :</b> <code>60 sec</code>",
-    ),
-    "INDEX_URL": (
-        "",
-        "",
-        "Send Index URL for your gdrive option. </i> \n╰ <b>Time Left :</b> <code>60 sec</code>",
     ),
     "UPLOAD_PATHS": (
         "",
@@ -169,14 +137,6 @@ Here I will explain how to use mltb.* which is reference to files you want to wo
 <i>Send dict of FFMPEG_CMDS Options according to format.</i> \n╰ <b>Time Left :</b> <code>60 sec</code>
 """,
     ),
-    "METADATA_CMDS": (
-        "",
-        "",
-        """<i>Send your Meta data. You can according to the format title="Join @WZML_X".</i>
-<b>Full Documentation Guide</b> <a href="https://t.me/WZML_X/">Click Here</a>
-╰ <b>Time Left :</b> <code>60 sec</code>
-""",
-    ),
     "USER_COOKIE_FILE": (
         "File",
         "User's YT-DLP Cookie File to authenticate access to websites and youtube.",
@@ -189,15 +149,12 @@ async def get_user_settings(from_user, stype="main"):
     user_id = from_user.id
     user_name = from_user.mention(style="html")
     buttons = ButtonMaker()
-    rclone_conf = f"rclone/{user_id}.conf"
-    token_pickle = f"tokens/{user_id}.pickle"
     user_dict = user_data.get(user_id, {})
 
     if stype == "main":
         buttons.data_button(
             "General Settings", f"userset {user_id} general", position="header"
         )
-        buttons.data_button("Mirror Settings", f"userset {user_id} mirror")
         buttons.data_button("Leech Settings", f"userset {user_id} leech")
         buttons.data_button("FF Media Settings", f"userset {user_id} ffset")
         buttons.data_button(
@@ -208,14 +165,11 @@ async def get_user_settings(from_user, stype="main"):
             key in user_dict
             for key in list(user_settings_text.keys())
             + [
-                "USER_TOKENS",
                 "AS_DOCUMENT",
                 "EQUAL_SPLITS",
                 "MEDIA_GROUP",
                 "USER_TRANSMISSION",
                 "HYBRID_LEECH",
-                "STOP_DUPLICATE",
-                "DEFAULT_UPLOAD",
             ]
         ):
             buttons.data_button(
@@ -234,39 +188,18 @@ async def get_user_settings(from_user, stype="main"):
         btns = buttons.build_menu(2)
 
     elif stype == "general":
-        if user_dict.get("DEFAULT_UPLOAD", ""):
-            default_upload = user_dict["DEFAULT_UPLOAD"]
-        elif "DEFAULT_UPLOAD" not in user_dict:
-            default_upload = Config.DEFAULT_UPLOAD
-        du = "GDRIVE API" if default_upload == "gd" else "RCLONE"
-        dur = "GDRIVE API" if default_upload != "gd" else "RCLONE"
-        buttons.data_button(
-            f"Swap to {dur} Mode", f"userset {user_id} {default_upload}"
-        )
-
-        user_tokens = user_dict.get("USER_TOKENS", False)
-        tr = "USER" if user_tokens else "OWNER"
-        trr = "OWNER" if user_tokens else "USER"
-        buttons.data_button(
-            f"Swap to {trr} token/config",
-            f"userset {user_id} tog USER_TOKENS {'f' if user_tokens else 't'}",
-        )
-
-        buttons.data_button("Back", f"userset {user_id} back", "footer")
-        buttons.data_button("Close", f"userset {user_id} close", "footer")
-
         use_user_cookie = user_dict.get("USE_USER_COOKIE", False)
         cookie_mode = "USER's" if use_user_cookie else "OWNER's"
         buttons.data_button(
             f"Swap to {'OWNER' if use_user_cookie else 'USER'}'s Cookie",
             f"userset {user_id} tog USE_USER_COOKIE {'f' if use_user_cookie else 't'}",
         )
+        buttons.data_button("Back", f"userset {user_id} back", "footer")
+        buttons.data_button("Close", f"userset {user_id} close", "footer")
         btns = buttons.build_menu(1)
 
         text = f"""⌬ <b>General Settings :</b>
 ╭ <b>Name</b> → {user_name}
-┊ <b>Default Upload Package</b> → <b>{du}</b>
-┊ <b>Default Usage Mode</b> → <b>{tr}'s</b> token/config
 ╰ <b>Cookie Mode</b> → <b>{cookie_mode}</b>
 """
 
@@ -419,120 +352,6 @@ async def get_user_settings(from_user, stype="main"):
 ╰ Thumbnail Layout → <b>{thumb_layout}</b>
 """
 
-    elif stype == "rclone":
-        buttons.data_button("Rclone Config", f"userset {user_id} menu RCLONE_CONFIG")
-        buttons.data_button(
-            "Default Rclone Path", f"userset {user_id} menu RCLONE_PATH"
-        )
-        buttons.data_button("Rclone Flags", f"userset {user_id} menu RCLONE_FLAGS")
-
-        buttons.data_button("Back", f"userset {user_id} back mirror", "footer")
-        buttons.data_button("Close", f"userset {user_id} close", "footer")
-
-        rccmsg = "Exists" if await aiopath.exists(rclone_conf) else "Not Exists"
-        if user_dict.get("RCLONE_PATH", False):
-            rccpath = user_dict["RCLONE_PATH"]
-        elif Config.RCLONE_PATH:
-            rccpath = Config.RCLONE_PATH
-        else:
-            rccpath = "None"
-        btns = buttons.build_menu(1)
-
-        if user_dict.get("RCLONE_FLAGS", False):
-            rcflags = user_dict["RCLONE_FLAGS"]
-        elif "RCLONE_FLAGS" not in user_dict and Config.RCLONE_FLAGS:
-            rcflags = Config.RCLONE_FLAGS
-        else:
-            rcflags = "None"
-
-        text = f"""⌬ <b>RClone Settings :</b>
-╭ <b>Name</b> → {user_name}
-┊ <b>Rclone Config</b> → <b>{rccmsg}</b>
-┊ <b>Rclone Flags</b> → <code>{rcflags}</code>
-╰ <b>Rclone Path</b> → <code>{rccpath}</code>"""
-
-    elif stype == "gdrive":
-        buttons.data_button("token.pickle", f"userset {user_id} menu TOKEN_PICKLE")
-        buttons.data_button("Default Gdrive ID", f"userset {user_id} menu GDRIVE_ID")
-        buttons.data_button("Index URL", f"userset {user_id} menu INDEX_URL")
-        if (
-            user_dict.get("STOP_DUPLICATE", False)
-            or "STOP_DUPLICATE" not in user_dict
-            and Config.STOP_DUPLICATE
-        ):
-            buttons.data_button(
-                "Disable Stop Duplicate", f"userset {user_id} tog STOP_DUPLICATE f"
-            )
-            sd_msg = "Enabled"
-        else:
-            buttons.data_button(
-                "Enable Stop Duplicate",
-                f"userset {user_id} tog STOP_DUPLICATE t",
-                "l_body",
-            )
-            sd_msg = "Disabled"
-        buttons.data_button("Back", f"userset {user_id} back mirror", "footer")
-        buttons.data_button("Close", f"userset {user_id} close", "footer")
-
-        tokenmsg = "Exists" if await aiopath.exists(token_pickle) else "Not Exists"
-        if user_dict.get("GDRIVE_ID", False):
-            gdrive_id = user_dict["GDRIVE_ID"]
-        elif GDID := Config.GDRIVE_ID:
-            gdrive_id = GDID
-        else:
-            gdrive_id = "None"
-        index = user_dict["INDEX_URL"] if user_dict.get("INDEX_URL", False) else "None"
-        btns = buttons.build_menu(2)
-
-        text = f"""⌬ <b>GDrive Tools Settings :</b>
-╭ <b>Name</b> → {user_name}
-┊ <b>Gdrive Token</b> → <b>{tokenmsg}</b>
-┊ <b>Gdrive ID</b> → <code>{gdrive_id}</code>
-┊ <b>Index URL</b> → <code>{index}</code>
-╰ <b>Stop Duplicate</b> → <b>{sd_msg}</b>"""
-    elif stype == "mirror":
-        buttons.data_button("RClone Tools", f"userset {user_id} rclone")
-        rccmsg = "Exists" if await aiopath.exists(rclone_conf) else "Not Exists"
-        if user_dict.get("RCLONE_PATH", False):
-            rccpath = user_dict["RCLONE_PATH"]
-        elif RP := Config.RCLONE_PATH:
-            rccpath = RP
-        else:
-            rccpath = "None"
-
-        buttons.data_button("GDrive Tools", f"userset {user_id} gdrive")
-        tokenmsg = "Exists" if await aiopath.exists(token_pickle) else "Not Exists"
-        if user_dict.get("GDRIVE_ID", False):
-            gdrive_id = user_dict["GDRIVE_ID"]
-        elif GI := Config.GDRIVE_ID:
-            gdrive_id = GI
-        else:
-            gdrive_id = "None"
-
-        index = user_dict["INDEX_URL"] if user_dict.get("INDEX_URL", False) else "None"
-        if (
-            user_dict.get("STOP_DUPLICATE", False)
-            or "STOP_DUPLICATE" not in user_dict
-            and Config.STOP_DUPLICATE
-        ):
-            sd_msg = "Enabled"
-        else:
-            sd_msg = "Disabled"
-
-        buttons.data_button("Back", f"userset {user_id} back", "footer")
-        buttons.data_button("Close", f"userset {user_id} close", "footer")
-        btns = buttons.build_menu(1)
-
-        text = f"""⌬ <b>Mirror Settings :</b>
-╭ <b>Name</b> → {user_name}
-┊ <b>Rclone Config</b> → <b>{rccmsg}</b>
-┊ <b>Rclone Path</b> → <code>{rccpath}</code>
-┊ <b>Gdrive Token</b> → <b>{tokenmsg}</b>
-┊ <b>Gdrive ID</b> → <code>{gdrive_id}</code>
-┊ <b>Index Link</b> → <code>{index}</code>
-╰ <b>Stop Duplicate</b> → <b>{sd_msg}</b>
-"""
-
     elif stype == "ffset":
         buttons.data_button("FFmpeg Cmds", f"userset {user_id} menu FFMPEG_CMDS")
         if user_dict.get("FFMPEG_CMDS", False):
@@ -637,16 +456,6 @@ async def add_file(_, message, ftype, rfunc):
     handler_dict[user_id] = False
     if ftype == "THUMBNAIL":
         des_dir = await create_thumb(message, user_id)
-    elif ftype == "RCLONE_CONFIG":
-        rpath = f"{getcwd()}/rclone/"
-        await makedirs(rpath, exist_ok=True)
-        des_dir = f"{rpath}{user_id}.conf"
-        await message.download(file_name=des_dir)
-    elif ftype == "TOKEN_PICKLE":
-        tpath = f"{getcwd()}/tokens/"
-        await makedirs(tpath, exist_ok=True)
-        des_dir = f"{tpath}{user_id}.pickle"
-        await message.download(file_name=des_dir)
     elif ftype == "USER_COOKIE_FILE":
         cpath = f"{getcwd()}/cookies/{user_id}"
         await makedirs(cpath, exist_ok=True)
@@ -734,13 +543,11 @@ async def get_menu(option, message, user_id):
 
     file_dict = {
         "THUMBNAIL": f"thumbnails/{user_id}.jpg",
-        "RCLONE_CONFIG": f"rclone/{user_id}.conf",
-        "TOKEN_PICKLE": f"tokens/{user_id}.pickle",
         "USER_COOKIE_FILE": f"cookies/{user_id}/cookies.txt",
     }
 
     buttons = ButtonMaker()
-    if option in ["THUMBNAIL", "RCLONE_CONFIG", "TOKEN_PICKLE", "USER_COOKIE_FILE"]:
+    if option in ["THUMBNAIL", "USER_COOKIE_FILE"]:
         key = "file"
     else:
         key = "set"
@@ -767,10 +574,6 @@ async def get_menu(option, message, user_id):
             buttons.data_button("Remove", f"userset {user_id} remove {option}")
     if option in leech_options:
         back_to = "leech"
-    elif option in rclone_options:
-        back_to = "rclone"
-    elif option in gdrive_options:
-        back_to = "gdrive"
     elif option in ffset_options:
         back_to = "ffset"
     elif option in advanced_options:
@@ -841,7 +644,6 @@ async def edit_user_settings(client, query):
 
     handler_dict[user_id] = False
     thumb_path = f"thumbnails/{user_id}.jpg"
-    rclone_conf = f"rclone/{user_id}.conf"
     token_pickle = f"tokens/{user_id}.pickle"
     yt_cookie_path = f"cookies/{user_id}/cookies.txt"
 
@@ -852,12 +654,9 @@ async def edit_user_settings(client, query):
         await query.answer()
     elif data[2] in [
         "general",
-        "mirror",
         "leech",
         "ffset",
         "advanced",
-        "gdrive",
-        "rclone",
     ]:
         await query.answer()
         await update_user_settings(query, data[2])
@@ -867,9 +666,7 @@ async def edit_user_settings(client, query):
     elif data[2] == "tog":
         await query.answer()
         update_user_ldata(user_id, data[3], data[4] == "t")
-        if data[3] == "STOP_DUPLICATE":
-            back_to = "gdrive"
-        elif data[3] in ["USER_TOKENS", "USE_USER_COOKIE"]:
+        if data[3] in ["USE_USER_COOKIE"]:
             back_to = "general"
         else:
             back_to = "leech"
@@ -918,11 +715,9 @@ async def edit_user_settings(client, query):
         await event_handler(client, query, pfunc, rfunc)
     elif data[2] == "remove":
         await query.answer("Removed!", show_alert=True)
-        if data[3] in ["THUMBNAIL", "RCLONE_CONFIG", "TOKEN_PICKLE", "USER_COOKIE_FILE"]:
+        if data[3] in ["THUMBNAIL", "USER_COOKIE_FILE"]:
             if data[3] == "THUMBNAIL":
                 fpath = thumb_path
-            elif data[3] == "RCLONE_CONFIG":
-                fpath = rclone_conf
             elif data[3] == "USER_COOKIE_FILE":
                 fpath = yt_cookie_path
             else:
@@ -944,7 +739,7 @@ async def edit_user_settings(client, query):
             for k in list(user_dict.keys()):
                 if k not in ("SUDO", "AUTH", "VERIFY_TOKEN", "VERIFY_TIME"):
                     del user_dict[k]
-            for fpath in [thumb_path, rclone_conf, token_pickle, yt_cookie_path]:
+            for fpath in [thumb_path, token_pickle, yt_cookie_path]:
                 if await aiopath.exists(fpath):
                     await remove(fpath)
             await update_user_settings(query)
@@ -952,12 +747,6 @@ async def edit_user_settings(client, query):
     elif data[2] == "view":
         await query.answer()
         await send_file(message, thumb_path, name)
-    elif data[2] in ["gd", "rc"]:
-        await query.answer()
-        du = "rc" if data[2] == "gd" else "gd"
-        update_user_ldata(user_id, "DEFAULT_UPLOAD", du)
-        await update_user_settings(query, stype="general")
-        await database.update_user_data(user_id)
     elif data[2] == "back":
         await query.answer()
         stype = data[3] if len(data) == 4 else "main"

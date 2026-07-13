@@ -15,8 +15,7 @@ from ... import bot_loop, user_data
 from ...core.config_manager import Config
 from ..telegram_helper.button_build import ButtonMaker
 from .help_messages import (
-    CLONE_HELP_DICT,
-    MIRROR_HELP_DICT,
+    LEECH_HELP_DICT,
     YT_HELP_DICT,
 )
 from .telegraph_helper import telegraph
@@ -44,22 +43,6 @@ class SetInterval:
 def _build_command_usage(help_dict, command_key):
     buttons = ButtonMaker()
     cmd_list = list(help_dict.keys())[1:]
-    temp_store = []
-    cmd_pages = [cmd_list[i : i + 10] for i in range(0, len(cmd_list), 10)]
-    for i in range(1, len(cmd_pages) + 1):
-        for name in cmd_pages[i]:
-            buttons.data_button(name, f"help {command_key} {name}")
-        buttons.data_button("Prev", f"help pre {command_key} {i - 1}")
-        buttons.data_button("Next", f"help nex {command_key} {i + 1}")
-        buttons.data_button("Close", "help close", "footer")
-        temp_store.append(buttons.build_menu(2))
-    COMMAND_USAGE[command_key] = [help_dict["main"], *temp_store]
-    buttons.reset()
-
-
-def _build_command_usage(help_dict, command_key):
-    buttons = ButtonMaker()
-    cmd_list = list(help_dict.keys())[1:]
     cmd_pages = [cmd_list[i : i + 10] for i in range(0, len(cmd_list), 10)]
     temp_store = []
 
@@ -79,9 +62,8 @@ def _build_command_usage(help_dict, command_key):
 
 
 def create_help_buttons():
-    _build_command_usage(MIRROR_HELP_DICT, "mirror")
+    _build_command_usage(LEECH_HELP_DICT, "leech")
     _build_command_usage(YT_HELP_DICT, "yt")
-    _build_command_usage(CLONE_HELP_DICT, "clone")
 
 
 def compare_versions(v1, v2):

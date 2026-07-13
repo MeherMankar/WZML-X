@@ -135,13 +135,6 @@ def add_handlers():
     )
     TgClient.bot.add_handler(
         MessageHandler(
-            clone_node,
-            filters=command(BotCommands.CloneCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
             aioexecute,
             filters=command(BotCommands.AExecCommand, case_sensitive=True)
             & CustomFilters.sudo,
@@ -175,59 +168,6 @@ def add_handlers():
         MessageHandler(
             remove_from_queue,
             filters=command(BotCommands.ForceStartCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
-            count_node,
-            filters=command(BotCommands.CountCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
-            delete_file,
-            filters=command(BotCommands.DeleteCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
-            gdrive_search,
-            filters=command(BotCommands.ListCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        CallbackQueryHandler(select_type, filters=regex("^list_types"))
-    )
-    TgClient.bot.add_handler(CallbackQueryHandler(arg_usage, filters=regex("^help")))
-    TgClient.bot.add_handler(
-        MessageHandler(
-            mirror,
-            filters=command(BotCommands.MirrorCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
-            qb_mirror,
-            filters=command(BotCommands.QbMirrorCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
-            jd_mirror,
-            filters=command(BotCommands.JdMirrorCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
-            nzb_mirror,
-            filters=command(BotCommands.NzbMirrorCommand, case_sensitive=True)
             & CustomFilters.authorized,
         )
     )
@@ -404,60 +344,17 @@ def add_handlers():
     )
     TgClient.bot.add_handler(
         MessageHandler(
-            ytdl,
-            filters=command(BotCommands.YtdlCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
             ytdl_leech,
             filters=command(BotCommands.YtdlLeechCommand, case_sensitive=True)
-            & CustomFilters.authorized,
-        )
-    )
-    TgClient.bot.add_handler(
-        MessageHandler(
-            hydra_search,
-            filters=command(BotCommands.NzbSearchCommand, case_sensitive=True)
             & CustomFilters.authorized,
         )
     )
     if Config.SET_COMMANDS:
         global BOT_COMMANDS
 
-        def insert_at(d, k, v, i):
-            return dict(list(d.items())[:i] + [(k, v)] + list(d.items())[i:])
-
-        if Config.JD_EMAIL and Config.JD_PASS:
-            BOT_COMMANDS = insert_at(
-                BOT_COMMANDS,
-                "JdMirror",
-                "[link/file] Mirror to Upload Destination using JDownloader",
-                2,
-            )
-            BOT_COMMANDS = insert_at(
-                BOT_COMMANDS,
-                "JdLeech",
-                "[link/file] Leech files to Upload to Telegram using JDownloader",
-                6,
-            )
-
-        if len(Config.USENET_SERVERS) != 0:
-            BOT_COMMANDS = insert_at(
-                BOT_COMMANDS,
-                "NzbMirror",
-                "[nzb] Mirror to Upload Destination using Sabnzbd",
-                2,
-            )
-            BOT_COMMANDS = insert_at(
-                BOT_COMMANDS,
-                "NzbLeech",
-                "[nzb] Leech files to Upload to Telegram using Sabnzbd",
-                6,
-            )
-
         if Config.LOGIN_PASS:
+            def insert_at(d, k, v, i):
+                return dict(list(d.items())[:i] + [(k, v)] + list(d.items())[i:])
             BOT_COMMANDS = insert_at(
                 BOT_COMMANDS, "Login", "[password] Login to Bot", 14
             )

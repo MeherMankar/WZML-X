@@ -1,4 +1,3 @@
-asyncio
 aiofiles
 aiohttp
 aioshutil
@@ -11,9 +10,6 @@ cloudscraper
 dnspython
 fastapi
 feedparser
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
 gunicorn
 httpx
 langcodes
@@ -29,7 +25,6 @@ pymongo
 pyrofork==2.2.11
 python-magic
 pytz
-qbittorrent-api
 requests
 speedtest-cli
 telegraph

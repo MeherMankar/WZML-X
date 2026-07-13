@@ -42,7 +42,6 @@ commands = {
         rf"{BinConfig.SABNZBD_NAME}-([\d.]+)",
     ),
     "python": (["python3", "--version"], r"Python ([\d.]+)"),
-    "rclone": ([BinConfig.RCLONE_NAME, "--version"], r"rclone v([\d.]+)"),
     "yt-dlp": (["yt-dlp", "--version"], r"([\d.]+)"),
     "ffmpeg": (
         [BinConfig.FFMPEG_NAME, "-version"],
@@ -51,7 +50,6 @@ commands = {
     "7z": (["7z", "i"], r"7-Zip ([\d.]+)"),
     "aiohttp": (["uv", "pip", "show", "aiohttp"], r"Version: ([\d.]+)"),
     "pyrofork": (["uv", "pip", "show", "pyrofork"], r"Version: ([\d.]+)"),
-    "gapi": (["uv", "pip", "show", "google-api-python-client"], r"Version: ([\d.]+)"),
     "mega": (["pip", "show", "megasdk"], r"Version: ([\d.]+)"),
 }
 
@@ -148,13 +146,11 @@ async def get_stats(event, key="home"):
 ┊ <b>aria2:</b> {bot_cache["eng_versions"]["aria2"]}
 ┊ <b>qBittorrent:</b> {bot_cache["eng_versions"]["qBittorrent"]}
 ┊ <b>SABnzbd+:</b> {bot_cache["eng_versions"]["SABnzbd+"]}
-┊ <b>rclone:</b> {bot_cache["eng_versions"]["rclone"]}
 ┊ <b>yt-dlp:</b> {bot_cache["eng_versions"]["yt-dlp"]}
 ┊ <b>ffmpeg:</b> {bot_cache["eng_versions"]["ffmpeg"]}
 ┊ <b>7z:</b> {bot_cache["eng_versions"]["7z"]}
 ┊ <b>Aiohttp:</b> {bot_cache["eng_versions"]["aiohttp"]}
 ┊ <b>Pyrofork:</b> {bot_cache["eng_versions"]["pyrofork"]}
-┊ <b>Google API:</b> {bot_cache["eng_versions"]["gapi"]}
 ╰ <b>Mega SDK:</b> {bot_cache["eng_versions"]["mega"]}
 """
     elif key == "tlimits":
@@ -162,9 +158,6 @@ async def get_stats(event, key="home"):
 
 ╭ <b>Direct Limit :</b> {Config.DIRECT_LIMIT or "∞"} GB
 ┊ <b>Torrent Limit :</b> {Config.TORRENT_LIMIT or "∞"} GB
-┊ <b>GDriveDL Limit :</b> {Config.GD_DL_LIMIT or "∞"} GB
-┊ <b>RCloneDL Limit :</b> {Config.RC_DL_LIMIT or "∞"} GB
-┊ <b>Clone Limit :</b> {Config.CLONE_LIMIT or "∞"} GB
 ┊ <b>JDown Limit :</b> {Config.JD_LIMIT or "∞"} GB
 ┊ <b>NZB Limit :</b> {Config.NZB_LIMIT or "∞"} GB
 ┊ <b>YT-DLP Limit :</b> {Config.YTDLP_LIMIT or "∞"} GB

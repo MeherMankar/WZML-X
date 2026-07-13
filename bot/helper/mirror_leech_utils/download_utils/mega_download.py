@@ -16,9 +16,6 @@ from ...ext_utils.task_manager import (
 from ...mirror_leech_utils.status_utils.mega_dl_status import MegaDownloadStatus
 from ...mirror_leech_utils.status_utils.queue_status import QueueStatus
 from ...telegram_helper.message_utils import (
-    auto_delete_message,
-    delete_links,
-    send_message,
     send_status_message,
 )
 from ...listeners.mega_listener import (

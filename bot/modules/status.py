@@ -23,7 +23,6 @@ from ..helper.ext_utils.status_utils import (
     get_readable_time,
     speed_string_to_bytes,
 )
-from ..helper.telegram_helper.bot_commands import BotCommands
 from ..helper.telegram_helper.message_utils import (
     send_message,
     delete_message,

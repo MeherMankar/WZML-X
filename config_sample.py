@@ -15,14 +15,12 @@ CMD_SUFFIX = ""
 AUTHORIZED_CHATS = ""
 SUDO_USERS = ""
 STATUS_LIMIT = 10
-DEFAULT_UPLOAD = "rc"
 STATUS_UPDATE_INTERVAL = 15
 FILELION_API = ""
 STREAMWISH_API = ""
 EXCLUDED_EXTENSIONS = ""
 INCOMPLETE_TASK_NOTIFIER = False
 YT_DLP_OPTIONS = ""
-USE_SERVICE_ACCOUNTS = False
 NAME_SWAP = ""
 FFMPEG_CMDS = {}
 UPLOAD_PATHS = {}
@@ -43,7 +41,6 @@ DISABLE_TORRENTS = False
 DISABLE_LEECH = False
 DISABLE_BULK = False
 DISABLE_MULTI = False
-DISABLE_SEED = False
 DISABLE_FF_MODE = False
 
 # Telegraph
@@ -54,9 +51,6 @@ AUTHOR_URL = "https://t.me/MirrorBeast"
 DIRECT_LIMIT = 0
 MEGA_LIMIT = 0
 TORRENT_LIMIT = 0
-GD_DL_LIMIT = 0
-RC_DL_LIMIT = 0
-CLONE_LIMIT = 0
 JD_LIMIT = 0
 NZB_LIMIT = 0
 YTDLP_LIMIT = 0
@@ -68,10 +62,6 @@ STORAGE_LIMIT = 0
 
 # Insta video downloader api
 INSTADL_API = ""
-
-# Nzb search
-HYDRA_IP = ""
-HYDRA_API_KEY = ""
 
 # Media Search
 IMDB_TEMPLATE = """<b>🎬 Title:</b> <a href="{url}">{title}</a> <b>({year})</b>
@@ -104,22 +94,6 @@ LOGIN_PASS = ""
 BOT_PM = False
 SET_COMMANDS = True
 TIMEZONE = "Asia/Kolkata"
-
-# GDrive Tools
-GDRIVE_ID = ""
-GD_DESP = "Uploaded by Beast"
-IS_TEAM_DRIVE = False
-STOP_DUPLICATE = False
-INDEX_URL = ""
-
-# Rclone
-RCLONE_PATH = ""
-RCLONE_FLAGS = ""
-RCLONE_SERVE_URL = ""
-RCLONE_SERVE_PORT = 0
-RCLONE_SERVE_USER = ""
-RCLONE_SERVE_PASS = ""
-SHOW_CLOUD_LINK = False
 
 # JDownloader
 JD_EMAIL = ""
@@ -168,7 +142,6 @@ THUMBNAIL_LAYOUT = ""
 # Log Channels
 LEECH_DUMP_CHAT = ""
 LINKS_LOG_ID = ""
-MIRROR_LOG_ID = ""
 
 # qBittorrent/Aria2c
 TORRENT_TIMEOUT = 0
