@@ -44,6 +44,10 @@ bash start_local.sh
 docker compose up
 ```
 
+### Google Colab
+
+For testing purposes: [Open in Google Colab](https://colab.research.google.com/drive/1k9FEB3OKFQrhXFjjEDWgVxjOikz8J2XX)
+
 ---
 
 ## ⚙️ Configuration
