@@ -15,33 +15,49 @@ aria2c --enable-rpc \
   --auto-file-renaming=false \
   --max-concurrent-downloads=10 \
   --continue=true \
+  --check-certificate=false \
   --daemon=true \
-  --log=/tmp/aria2.log
+  --quiet=true \
+  --summary-interval=0
 
-echo "aria2 started"
+echo "[START] aria2 started"
 
-# Start qBittorrent Web UI (required for /qbleech)
-if command -v qbittorrent-nox &>/dev/null; then
-  qbittorrent-nox --webui-port=8090 --daemon 2>/dev/null || \
-  (qbittorrent-nox --webui-port=8090 &)
-  sleep 2
-  echo "qBittorrent started on port 8090"
-  echo "  Default login: admin / adminadmin"
-  echo "  Change password at: http://localhost:8090"
-else
-  echo "WARNING: qbittorrent-nox not found. Install with: sudo apt install qbittorrent-nox"
-  echo "  /qbleech will not work until qBittorrent is installed"
-fi
+# Configure qBittorrent with known credentials and bypass localhost auth
+QB_CONF_DIR="$HOME/.config/qBittorrent"
+mkdir -p "$QB_CONF_DIR"
+cat > "$QB_CONF_DIR/qBittorrent.ini" << 'QBCONF'
+[BitTorrent]
+Session\DefaultSavePath=/tmp/downloads/
+
+[LegalNotice]
+Accepted=true
+
+[Preferences]
+WebUI\AuthSubnetWhitelistEnabled=true
+WebUI\AuthSubnetWhitelist=127.0.0.1/32
+WebUI\LocalHostAuth=false
+WebUI\Password_PBKDF2="@ByteArray(ARQ77eY1NUZaQsuDHbIMCA==:0WMRkYTUWVT9wVvdDtHAjU9b3b7uB8NR1Gur2hmQCvCDpm39Q+PsJRJPaCU51dFqjfk/HQUIxh6tGbB1lKFJlw==)"
+WebUI\Port=8090
+WebUI\Username=admin
+QBCONF
+
+# Start qBittorrent Web UI
+qbittorrent-nox --webui-port=8090 --daemon 2>/dev/null || qbittorrent-nox --webui-port=8090 &
+sleep 3
+echo "[START] qBittorrent started on port 8090 (localhost auth bypassed)"
 
 # Check aria2 is running
 if ! pgrep aria2c > /dev/null; then
-    echo "ERROR: aria2 failed to start. Check /tmp/aria2.log"
+    echo "ERROR: aria2 failed to start"
     exit 1
 fi
 
 # Add local bin to PATH for gunicorn etc.
 export PATH="$HOME/.local/bin:$PATH"
 
+# Set download dir for WSL
+export DOWNLOAD_DIR="/mnt/d/Projects/WZML-X/downloads/"
+
 # Start the bot
-echo "Starting bot..."
+echo "[START] Starting bot..."
 python3.12 -m bot
