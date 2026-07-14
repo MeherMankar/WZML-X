@@ -67,7 +67,11 @@ try:
     _config_download_dir = getattr(_cfg, "DOWNLOAD_DIR", None)
 except Exception:
     pass
-DOWNLOAD_DIR = _config_download_dir or _os.environ.get("DOWNLOAD_DIR", "/usr/src/app/downloads/")
+DOWNLOAD_DIR = (
+    _config_download_dir
+    or _os.environ.get("DOWNLOAD_DIR")
+    or "/usr/src/app/downloads/"
+)
 if not DOWNLOAD_DIR.endswith("/"):
     DOWNLOAD_DIR += "/"
 del _os, _config_download_dir
