@@ -16,8 +16,7 @@ async def speedtest(_, message):
     try:
         speedtest = await sync_to_async(Speedtest)
         await edit_message(speed_msg, "<i>Finding best server...</i>")
-        best_server = await sync_to_async(speedtest.get_best_server)
-        server_info = best_server or speedtest.get_best_server()
+        await sync_to_async(speedtest.get_best_server)
         await edit_message(speed_msg, "<i>Testing download speed...</i>")
         await sync_to_async(speedtest.download)
         await edit_message(speed_msg, "<i>Testing upload speed...</i>")
@@ -44,13 +43,6 @@ async def speedtest(_, message):
             d = d.get(k, {}) if isinstance(d, dict) else {}
         return d or default
 
-    upload_speed = get_readable_file_size(result.get('upload', 0) / 8) + "/s"
-    download_speed = get_readable_file_size(result.get('download', 0) / 8) + "/s"
-    ping = result.get('ping', 'N/A')
-    timestamp = result.get('timestamp', 'N/A')
-    bytes_sent = get_readable_file_size(int(result.get('bytes_sent', 0)))
-    bytes_received = get_readable_file_size(int(result.get('bytes_received', 0)))
-    server = result.get('server', {})
     share_url = result.get('share', None)
 
     string_speed = f"""
