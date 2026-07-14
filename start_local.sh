@@ -3,9 +3,14 @@
 # Kill any leftover processes from previous run
 pkill aria2c 2>/dev/null
 pkill gunicorn 2>/dev/null
-pkill qbittorrent-nox 2>/dev/null
 pkill -f "python3.12 -m bot" 2>/dev/null
-sleep 1
+pkill qbittorrent-nox 2>/dev/null
+
+# Wait for qBittorrent to fully exit so it doesn't overwrite the config on shutdown
+for i in $(seq 1 10); do
+    pgrep qbittorrent-nox > /dev/null || break
+    sleep 1
+done
 
 # Start aria2 RPC server
 aria2c --enable-rpc \
@@ -23,9 +28,10 @@ aria2c --enable-rpc \
 echo "[START] aria2 started"
 
 # Configure qBittorrent with known credentials and bypass localhost auth
+# On Linux, qBittorrent reads qBittorrent.conf (not .ini)
 QB_CONF_DIR="$HOME/.config/qBittorrent"
 mkdir -p "$QB_CONF_DIR"
-cat > "$QB_CONF_DIR/qBittorrent.ini" << 'QBCONF'
+cat > "$QB_CONF_DIR/qBittorrent.conf" << 'QBCONF'
 [BitTorrent]
 Session\DefaultSavePath=/tmp/downloads/
 
@@ -36,7 +42,7 @@ Accepted=true
 WebUI\AuthSubnetWhitelistEnabled=true
 WebUI\AuthSubnetWhitelist=127.0.0.1/32
 WebUI\LocalHostAuth=false
-WebUI\Password_PBKDF2="@ByteArray(ARQ77eY1NUZaQsuDHbIMCA==:0WMRkYTUWVT9wVvdDtHAjU9b3b7uB8NR1Gur2hmQCvCDpm39Q+PsJRJPaCU51dFqjfk/HQUIxh6tGbB1lKFJlw==)"
+WebUI\Password_PBKDF2="@ByteArray(ARQ77eY1NUZaQsuDHbIMCA==:0WMRkYTUWVT9wVvdDtHAjU9b3b7uB8NR1Gur2hmQCvCDpm39Q+PsJRJPaCU51dEiz+dTzh8qbPsL8WkFljQYFQ==)"
 WebUI\Port=8090
 WebUI\Username=admin
 QBCONF

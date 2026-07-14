@@ -39,17 +39,18 @@ class MirrorStatus:
 
 class EngineStatus:
     def __init__(self):
-        self.STATUS_ARIA2 = f"Aria2 v{bot_cache['eng_versions']['aria2']}"
-        self.STATUS_AIOHTTP = f"AioHttp v{bot_cache['eng_versions']['aiohttp']}"
-        self.STATUS_GDAPI = f"Google-API v{bot_cache['eng_versions']['gapi']}"
-        self.STATUS_QBIT = f"qBit v{bot_cache['eng_versions']['qBittorrent']}"
-        self.STATUS_TGRAM = f"Pyro v{bot_cache['eng_versions']['pyrofork']}"
-        self.STATUS_MEGA = f"MegaAPI v{bot_cache['eng_versions']['mega']}"
-        self.STATUS_YTDLP = f"yt-dlp v{bot_cache['eng_versions']['yt-dlp']}"
-        self.STATUS_FFMPEG = f"ffmpeg v{bot_cache['eng_versions']['ffmpeg']}"
-        self.STATUS_7Z = f"7z v{bot_cache['eng_versions']['7z']}"
-        self.STATUS_RCLONE = f"RClone v{bot_cache['eng_versions']['rclone']}"
-        self.STATUS_SABNZBD = f"SABnzbd+ v{bot_cache['eng_versions']['SABnzbd+']}"
+        ev = bot_cache.get("eng_versions", {})
+        self.STATUS_ARIA2 = f"Aria2 v{ev.get('aria2', 'N/A')}"
+        self.STATUS_AIOHTTP = f"AioHttp v{ev.get('aiohttp', 'N/A')}"
+        self.STATUS_GDAPI = f"Google-API v{ev.get('gapi', 'N/A')}"
+        self.STATUS_QBIT = f"qBit v{ev.get('qBittorrent', 'N/A')}"
+        self.STATUS_TGRAM = f"Pyro v{ev.get('pyrofork', 'N/A')}"
+        self.STATUS_MEGA = f"MegaAPI v{ev.get('mega', 'N/A')}"
+        self.STATUS_YTDLP = f"yt-dlp v{ev.get('yt-dlp', 'N/A')}"
+        self.STATUS_FFMPEG = f"ffmpeg v{ev.get('ffmpeg', 'N/A')}"
+        self.STATUS_7Z = f"7z v{ev.get('7z', 'N/A')}"
+        self.STATUS_RCLONE = f"RClone v{ev.get('rclone', 'N/A')}"
+        self.STATUS_SABNZBD = f"SABnzbd+ v{ev.get('SABnzbd+', 'N/A')}"
         self.STATUS_QUEUE = "QSystem v2"
         self.STATUS_JD = "JDownloader v2"
 
