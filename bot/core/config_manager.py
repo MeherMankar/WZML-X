@@ -22,6 +22,8 @@ class Config:
     DISABLE_BULK = False
     DISABLE_MULTI = False
     DISABLE_FF_MODE = False
+    QB_USERNAME = "admin"
+    QB_PASSWORD = "adminadmin"
     EQUAL_SPLITS = False
     EXCLUDED_EXTENSIONS = ""
     FFMPEG_CMDS = {}

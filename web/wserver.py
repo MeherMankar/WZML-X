@@ -19,6 +19,8 @@ from web.nodes import extract_file_ids, make_tree
 from aiohttp import ClientSession
 from aioqbt.exc import AQError
 
+from bot.core.config_manager import Config
+
 getLogger("httpx").setLevel(WARNING)
 getLogger("aiohttp").setLevel(WARNING)
 
@@ -40,7 +42,11 @@ async def lifespan(app: FastAPI):
     global aria2, qbittorrent
     aria2 = Aria2HttpClient("http://localhost:6800/jsonrpc")
     try:
-        qbittorrent = await create_client("http://localhost:8090/api/v2/")
+        qbittorrent = await create_client(
+            "http://localhost:8090/api/v2/",
+            username=Config.QB_USERNAME,
+            password=Config.QB_PASSWORD,
+        )
     except Exception:
         qbittorrent = None
     yield

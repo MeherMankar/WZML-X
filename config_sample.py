@@ -144,6 +144,8 @@ LEECH_DUMP_CHAT = ""
 LINKS_LOG_ID = ""
 
 # qBittorrent/Aria2c
+QB_USERNAME = "admin"
+QB_PASSWORD = "adminadmin"
 TORRENT_TIMEOUT = 0
 BASE_URL = ""
 BASE_URL_PORT = 0
