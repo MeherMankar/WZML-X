@@ -14,10 +14,10 @@ fi
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
-# Run update script only if UPSTREAM_REPO is configured
+# Run update script only if UPSTREAM_REPO is explicitly set
 if [ -f "update.py" ] && [ -n "$UPSTREAM_REPO" ]; then
-  python3 update.py
+  /wzvenv/bin/python3 update.py
 fi
 
-# Start the bot (setpkgs.sh inside the bot handles aria2/sabnzbd startup)
-exec python3 -m bot
+# Start the bot from the correct working directory
+exec /wzvenv/bin/python3 -m bot
