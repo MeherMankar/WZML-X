@@ -37,12 +37,24 @@
       "required": false
     },
     "DOWNLOAD_DIR": {
-      "description": "Download directory path",
+      "description": "Download directory path (use /tmp on Heroku - ephemeral filesystem)",
       "value": "/tmp/downloads/"
     },
+    "BASE_URL": {
+      "description": "Your Heroku app URL (required for torrent file selection UI)",
+      "value": "https://mirrormeher-7f265c0ee5bc.herokuapp.com"
+    },
     "DISABLE_TORRENTS": {
-      "description": "Set True to disable qBittorrent (saves memory)",
+      "description": "Set True to disable qBittorrent (saves memory, recommended unless you need torrent support)",
       "value": "True"
+    },
+    "UPSTREAM_REPO": {
+      "description": "GitHub repo URL for auto-updates on restart (optional)",
+      "required": false
+    },
+    "UPSTREAM_BRANCH": {
+      "description": "Branch to pull updates from",
+      "value": "main"
     }
   },
   "formation": {
