@@ -277,11 +277,13 @@ async def load_configurations():
         async with aiopen(".netrc", "w"):
             pass
 
-    await (
-        await create_subprocess_shell(
-            f"chmod 600 .netrc && cp .netrc /root/.netrc && chmod +x setpkgs.sh && ./setpkgs.sh {BinConfig.ARIA2_NAME} {BinConfig.SABNZBD_NAME}"
-        )
-    ).wait()
+    # chmod .netrc; copy to /root only if running as root (Docker), skip on Heroku
+    netrc_cmd = "chmod 600 .netrc"
+    if ospath.exists("/root"):
+        netrc_cmd += " && cp .netrc /root/.netrc"
+    netrc_cmd += f" && chmod +x setpkgs.sh && ./setpkgs.sh {BinConfig.ARIA2_NAME} {BinConfig.SABNZBD_NAME}"
+
+    await (await create_subprocess_shell(netrc_cmd)).wait()
 
     PORT = getenv("PORT", "") or Config.BASE_URL_PORT
     if PORT:
@@ -296,13 +298,3 @@ async def load_configurations():
         await (
             await create_subprocess_exec("7z", "x", "cfg.zip", "-o/JDownloader")
         ).wait()
-
-    await TorrentManager.initiate()
-
-    if Config.DISABLE_TORRENTS:
-        LOGGER.info("Torrents are disabled. Skipping qBittorrent initialization.")
-    else:
-        try:
-            await TorrentManager.qbittorrent.app.set_preferences(qbit_options)
-        except Exception as e:
-            LOGGER.error(f"Failed to configure qBittorrent: {e}")
