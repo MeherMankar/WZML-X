@@ -3,6 +3,7 @@
 # Kill any leftover processes from previous run
 pkill aria2c 2>/dev/null
 pkill gunicorn 2>/dev/null
+pkill qbittorrent-nox 2>/dev/null
 pkill -f "python3.12 -m bot" 2>/dev/null
 sleep 1
 
@@ -18,7 +19,19 @@ aria2c --enable-rpc \
   --log=/tmp/aria2.log
 
 echo "aria2 started"
-sleep 2
+
+# Start qBittorrent Web UI (required for /qbleech)
+if command -v qbittorrent-nox &>/dev/null; then
+  qbittorrent-nox --webui-port=8090 --daemon 2>/dev/null || \
+  (qbittorrent-nox --webui-port=8090 &)
+  sleep 2
+  echo "qBittorrent started on port 8090"
+  echo "  Default login: admin / adminadmin"
+  echo "  Change password at: http://localhost:8090"
+else
+  echo "WARNING: qbittorrent-nox not found. Install with: sudo apt install qbittorrent-nox"
+  echo "  /qbleech will not work until qBittorrent is installed"
+fi
 
 # Check aria2 is running
 if ! pgrep aria2c > /dev/null; then
