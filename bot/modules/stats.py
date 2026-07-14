@@ -140,18 +140,21 @@ async def get_stats(event, key="home"):
 ⌬ <b>REMARKS :</b> <code>{compare_versions(get_version(), official_v)}</code>
     """
     elif key == "stpkgs":
+        def pkg_ver(k):
+            return bot_cache.get("eng_versions", {}).get(k, "N/A")
+
         msg = f"""⌬ <b><i>Packages Statistics :</i></b>
 
-╭ <b>python:</b> {bot_cache["eng_versions"]["python"]}
-┊ <b>aria2:</b> {bot_cache["eng_versions"]["aria2"]}
-┊ <b>qBittorrent:</b> {bot_cache["eng_versions"]["qBittorrent"]}
-┊ <b>SABnzbd+:</b> {bot_cache["eng_versions"]["SABnzbd+"]}
-┊ <b>yt-dlp:</b> {bot_cache["eng_versions"]["yt-dlp"]}
-┊ <b>ffmpeg:</b> {bot_cache["eng_versions"]["ffmpeg"]}
-┊ <b>7z:</b> {bot_cache["eng_versions"]["7z"]}
-┊ <b>Aiohttp:</b> {bot_cache["eng_versions"]["aiohttp"]}
-┊ <b>Pyrofork:</b> {bot_cache["eng_versions"]["pyrofork"]}
-╰ <b>Mega SDK:</b> {bot_cache["eng_versions"]["mega"]}
+╭ <b>python:</b> {pkg_ver("python")}
+┊ <b>aria2:</b> {pkg_ver("aria2")}
+┊ <b>qBittorrent:</b> {pkg_ver("qBittorrent")}
+┊ <b>SABnzbd+:</b> {pkg_ver("SABnzbd+")}
+┊ <b>yt-dlp:</b> {pkg_ver("yt-dlp")}
+┊ <b>ffmpeg:</b> {pkg_ver("ffmpeg")}
+┊ <b>7z:</b> {pkg_ver("7z")}
+┊ <b>Aiohttp:</b> {pkg_ver("aiohttp")}
+┊ <b>Pyrofork:</b> {pkg_ver("pyrofork")}
+╰ <b>Mega SDK:</b> {pkg_ver("mega")}
 """
     elif key == "tlimits":
         msg = f"""⌬ <b><i>Bot Task Limits :</i></b>
